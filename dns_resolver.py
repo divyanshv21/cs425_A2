@@ -122,15 +122,19 @@ def recursive_dns_lookup(domain):
     """
     print(f"[Recursive DNS Lookup] Resolving {domain}")
     try:
-        # Use the system's default resolver to resolve the domain to its A record (IPv4 address)
-        answer = dns.resolver.resolve(domain, "A")
+        # First, resolve NS records
+        ns_answer = dns.resolver.resolve(domain, "NS")
+        for rdata in ns_answer:
+            # rdata.target is the nameserver's hostname
+            print(f"[SUCCESS] {domain} -> {rdata.target}")
 
-        # For each record in the answer section, print the resolved IP address
-        for rdata in answer:
+        # Next, resolve A records
+        a_answer = dns.resolver.resolve(domain, "A")
+        for rdata in a_answer:
+            # rdata is the IP address
             print(f"[SUCCESS] {domain} -> {rdata}")
+
     except Exception as e:
-        # If an error occurs during the recursive lookup (e.g., domain doesn't exist or resolver issues),
-        # catch the exception and print an error message
         print(f"[ERROR] Recursive lookup failed: {e}")
 
 
